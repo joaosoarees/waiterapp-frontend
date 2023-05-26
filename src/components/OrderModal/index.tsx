@@ -12,9 +12,19 @@ type OrderModalProps = {
   visible: boolean;
   order: Order | null;
   onClose: () => void;
+  onCancelOrder: () => void;
+  isLoading: boolean;
+  onChangeOrderStatus: () => void;
 };
 
-export function OrderModal({ visible, order, onClose }: OrderModalProps) {
+export function OrderModal({
+  visible,
+  order,
+  onClose,
+  onCancelOrder,
+  isLoading,
+  onChangeOrderStatus,
+}: OrderModalProps) {
   if (!visible || !order) return null;
 
   useEffect(() => {
@@ -30,7 +40,7 @@ export function OrderModal({ visible, order, onClose }: OrderModalProps) {
   }, [onClose]);
 
   const total = order.products.reduce(
-    (acc, { product, quantity }) => acc + (product.price * quantity),
+    (acc, { product, quantity }) => acc + product.price * quantity,
     0
   );
 
@@ -87,11 +97,30 @@ export function OrderModal({ visible, order, onClose }: OrderModalProps) {
         </OrderDetails>
 
         <Actions>
-          <button type='button' className='primary'>
-            <span>👨‍🍳</span>
-            <strong>Iniciar produção</strong>
-          </button>
-          <button type='button' className='secondary'>
+          {order.status !== 'DONE' && (
+            <button
+              onClick={onChangeOrderStatus}
+              disabled={isLoading}
+              type="button"
+              className="primary"
+            >
+              <span>
+                {order.status === 'WAITING' && '👨‍🍳'}
+                {order.status === 'IN_PRODUCTION' && '✅'}
+              </span>
+              <strong>
+                {order.status === 'WAITING' && 'Iniciar Produção'}
+                {order.status === 'IN_PRODUCTION' && 'Concluir Pedido'}
+              </strong>
+            </button>
+          )}
+
+          <button
+            disabled={isLoading}
+            onClick={onCancelOrder}
+            type="button"
+            className="secondary"
+          >
             Cancelar pedido
           </button>
         </Actions>
